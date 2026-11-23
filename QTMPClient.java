@@ -13,7 +13,7 @@ public class QTMPClient {
     public static void main(String[] args) {
         try {
             Socket socket = new Socket(ADDRESS, PORT);
-            System.out.println("Connected to the chat server!");
+            System.out.println("Successfully connected to " + ADDRESS + ":" + PORT);
 
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));

@@ -35,7 +35,6 @@ public class QTMPServer {
                 Socket clientSocket = socket.accept();
                 System.out.println("New client connected: " + clientSocket);
 
-                // Create a new client handler for the connected client
                 ClientHandler clientHandler = new ClientHandler(clientSocket);
                 clients.add(clientHandler);
                 new Thread(clientHandler).start();
@@ -75,22 +74,30 @@ public class QTMPServer {
         @Override
         public void run() {
             try {
-                // Get the username from the client
                 out.println("Enter your username:");
                 username = in.readLine();
                 System.out.println("User " + username + " connected.");
-                out.println("Welcome to the chat, " + username + "!");
-                out.println("Type Your Message");
+                out.println(username + " has entered the chat.");
+                out.print("Type your message\n> ");
 
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
-                    System.out.println("[" + username + "]: " + inputLine);
-                    broadcast("[" + username + "]: " + inputLine, this);
-                }
-
-                // Remove the client handler from the list
+		    if (inputLine.substring(0, 1).equals("/")) {
+		    	if (inputLine.equals("/help")) {
+		    		out.println("/help: displays this message\n"
+						+ "/quit: closes the connection");
+			} else if {
+			    
+			} else {
+			    out.println("Invalid command.\nIf you didn't mean to input a command, you can start your message with '//' to insert one slash at the beginning of your message.")
+			}
+		    } else {
+                    	System.out.println("[" + username + "]: " + inputLine);
+		    	broadcast("[" + username + "]: " + inputLine, this);
+                    }
                 clients.remove(this);
-                System.out.println("User " + username + " disconnected.");
+		}
+            System.out.println(username + " has left the chat.");
             } catch (IOException e) {
                 errorMessage();
                 e.printStackTrace();
