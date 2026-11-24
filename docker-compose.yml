@@ -1,6 +1,6 @@
 services:
   qtmp:
-    image: bakedb/qtmp:1.0
+    image: ghcr.io/bakedb/qtmp:latest
     container_name: qtmp
     ports:
       - "7867:7867"
