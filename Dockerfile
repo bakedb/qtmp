@@ -13,4 +13,4 @@ EXPOSE 7867
 RUN useradd -r appuser && chown -R appuser /app
 USER appuser
 
-CMD [java, -cp, /app, QTMPServer]
+CMD ["java", "-cp", "/app", "QTMPServer"]
