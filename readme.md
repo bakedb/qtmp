@@ -8,10 +8,10 @@ Make a new directory for the server:
 `mkdir qtmp && cd qtmp`
 
 Pull the docker-compose.yml file:
-`curl -O https://raw.githubusercontent.com/youruser/qtmp/main/docker-compose.yml`
+`curl -O https://raw.githubusercontent.com/bakedb/qtmp/main/docker-compose.yml`
 
 Pull the config file:
-`curl -O https://raw.githubusercontent.com/youruser/qtmp/main/server.properties`
+`curl -O https://raw.githubusercontent.com/bakedb/qtmp/main/server.properties`
 
 Be sure to set all of the options in the config file before starting the server with 
 `docker compose up -d`.
