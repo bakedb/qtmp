@@ -1,0 +1,11 @@
+services:
+  qtmp:
+    image: bakedb/qtmp:1.0
+    container_name: qtmp
+    ports:
+      - "7867:7867"
+    volumes:
+      - ./server.properties:/app/server.properties:ro
+    stdin_open: true
+    tty: true
+    restart: unless-stopped

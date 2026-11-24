@@ -1,14 +1,11 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class QTMPServer {
-    private static final int PORT = 7867;
     private static CopyOnWriteArrayList<ClientHandler> clients = new CopyOnWriteArrayList<>();
 
     public static void errorMessage() {
@@ -16,6 +13,27 @@ public class QTMPServer {
     }
 
     public static void main(String[] args) {
+        Properties properties = new Properties();
+        try (FileInputStream fis = new FileInputStream("server.properties")) {
+            properties.load(fis);
+        } catch (FileNotFoundException e) {
+            System.out.println("server.properties not found, falling back to default values.");
+        } catch (IOException e) {
+            errorMessage();
+            e.printStackTrace();
+            return;
+        }
+
+        final int PORT;
+        try {
+            PORT = Integer.parseInt(properties.getProperty("port", "7867"));
+        } catch (NumberFormatException e) {
+            errorMessage();
+            e.printStackTrace();
+            return;
+        }
+        final String ADMIN_NAME = properties.getProperty("admin-name", "Server");
+
         System.out.println("QTMP is developed and maintained by Lavender Persson <contact@bkd.lol>");
         System.out.println("Starting QTMP...");
 
@@ -25,9 +43,9 @@ public class QTMPServer {
 
             new Thread(() -> {
                 Scanner scanner = new Scanner(System.in);
-                while (true) {
+                while (scanner.hasNextLine()) {
                     String message = scanner.nextLine();
-                    broadcast("[Server]: " + message, null);
+                    broadcast("[" + ADMIN_NAME + "]: " + message, null);
                 }
             }).start();
 
@@ -76,32 +94,50 @@ public class QTMPServer {
             try {
                 out.println("Enter your username:");
                 username = in.readLine();
+                if (username == null) {
+                    return;
+                }
                 System.out.println("User " + username + " connected.");
-                out.println(username + " has entered the chat.");
-                out.print("Type your message\n> ");
+                broadcast(username + " has entered the chat.", this);
+                out.println("Welcome to the chat, " + username + "!");
 
                 String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-		    if (inputLine.substring(0, 1).equals("/")) {
-		    	if (inputLine.equals("/help")) {
-		    		out.println("/help: displays this message\n"
-						+ "/quit: closes the connection");
-			} else if {
-			    
-			} else {
-			    out.println("Invalid command.\nIf you didn't mean to input a command, you can start your message with '//' to insert one slash at the beginning of your message.")
-			}
-		    } else {
-                    	System.out.println("[" + username + "]: " + inputLine);
-		    	broadcast("[" + username + "]: " + inputLine, this);
+                boolean quit = false;
+                while (!quit && (inputLine = in.readLine()) != null) {
+                    if (inputLine.isEmpty()) {
+                        continue;
                     }
-                clients.remove(this);
-		}
-            System.out.println(username + " has left the chat.");
+                    if (inputLine.startsWith("//")) {
+                        inputLine = inputLine.substring(1);
+                    } else if (inputLine.startsWith("/")) {
+                        if (inputLine.equals("/help")) {
+                            out.println("/help: displays this message\n"
+                                    + "/quit: closes the connection\n"
+                                    + "/clear: clears the screen");
+                        } else if (inputLine.equals("/quit")) {
+                            out.println("Goodbye!");
+                            quit = true;
+                        } else if (inputLine.equals("/clear")) {
+                            out.println("\033[2J\033[H");
+                        } else {
+                            out.println("Invalid command.\n"
+                                    + "If you didn't mean to input a command, you can start your message with '//' to insert one slash at the beginning of your message.");
+                        }
+                        continue;
+                    }
+
+                    System.out.println("[" + username + "]: " + inputLine);
+                    broadcast("[" + username + "]: " + inputLine, this);
+                }
             } catch (IOException e) {
                 errorMessage();
                 e.printStackTrace();
             } finally {
+                clients.remove(this);
+                if (username != null) {
+                    System.out.println(username + " has left the chat.");
+                    broadcast(username + " has left the chat.", this);
+                }
                 try {
                     in.close();
                     out.close();
