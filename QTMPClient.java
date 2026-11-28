@@ -8,6 +8,9 @@ public class QTMPClient {
         System.out.println("Uh oh, QTMP is sad :(\nHere is the stack trace:");
     }
 
+    private static final java.time.format.DateTimeFormatter TIMESTAMP =
+            java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     public static void main(String[] args) {
         Properties properties = new Properties();
         try (FileInputStream fis = new FileInputStream("client.properties")) {

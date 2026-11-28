@@ -6,7 +6,17 @@ import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class QTMPServer {
-    private static CopyOnWriteArrayList<ClientHandler> clients = new CopyOnWriteArrayList<>();
+    private static final CopyOnWriteArrayList<ClientHandler> clients = new CopyOnWriteArrayList<>();
+    private static PrintWriter logWriter;
+
+    private static final java.time.format.DateTimeFormatter TIMESTAMP =
+            java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    public static synchronized void log(String line) {
+        if (logWriter != null) {
+            logWriter.println("[" + java.time.LocalDateTime.now().format(TIMESTAMP) + "] " + line);
+        }
+    }
 
     public static void errorMessage() {
         System.out.println("Uh oh, QTMP is sad :(\nHere is the stack trace:");
@@ -33,6 +43,15 @@ public class QTMPServer {
             return;
         }
         final String ADMIN_NAME = properties.getProperty("admin-name", "Server");
+
+        final String LOG_FILE = properties.getProperty("log-file", "chat.log");
+        try {
+            logWriter = new PrintWriter(new BufferedWriter(new FileWriter(LOG_FILE, true)), true);
+        } catch (IOException e) {
+            errorMessage();
+            e.printStackTrace();
+            return;
+        }
 
         System.out.println("QTMP is developed and maintained by Lavender Persson <contact@bkd.lol>");
         System.out.println("Starting QTMP...");
@@ -64,6 +83,7 @@ public class QTMPServer {
     }
 
     public static void broadcast(String message, ClientHandler sender) {
+        log(message);
         for (ClientHandler client : clients) {
             if (client != sender) {
                 client.sendMessage(message);
