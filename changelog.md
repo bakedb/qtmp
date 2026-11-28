@@ -1,3 +1,7 @@
+# v0.1.2
+> 27 Nov 2026
+* Added log file
+
 # v0.1.1
 > 23 Nov 2026
 * Fixed broken Dockerfile

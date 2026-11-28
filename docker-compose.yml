@@ -6,6 +6,7 @@ services:
       - "7867:7867"
     volumes:
       - ./server.properties:/app/server.properties:ro
+      - ./logs:/data
     stdin_open: true
     tty: true
     restart: unless-stopped
